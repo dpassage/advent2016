@@ -1,4 +1,4 @@
-//: Playground - noun: a place where people can play
+//: [Previous](@previous)
 
 import Cocoa
 
@@ -96,8 +96,8 @@ struct TaxiState {
         guard let first = string.characters.first else { return TaxiState() }
         let turn: Turn
         switch first {
-            case "L": turn = .left
-            case "R": turn = .right
+        case "L": turn = .left
+        case "R": turn = .right
         default: return TaxiState()
         }
 
@@ -156,3 +156,4 @@ print(firstSpot.distance)
 let secondSport = TaxiState.movesFirstRevistedSpot(firstInput)
 print(secondSport.distance)
 
+//: [Next](@next)
