@@ -69,6 +69,48 @@ func generate(input: String, length: Int = 8) -> String {
     return result
 }
 
-print(generate(input: "abbhdwsy", length: 8))
+extension UInt8 {
+    var hex: String {
+        return String(format: "%x", self)
+    }
+}
+func generatePartTwo(input: String) -> String {
+    var result: [Character] = Array(repeating: "_", count: 8)
+    var complete: Bool = false
+    var index = 0
+
+    while !complete {
+        let withIndex = input.appending(String(index))
+        let hashData = md5data(input: withIndex)
+        complete = hashData.withUnsafeBytes({ (bytes: UnsafePointer<UInt8>) -> Bool in
+            if bytes[0] == 0 &&
+                bytes[1] == 0 &&
+                bytes[2] & 0xf0 == 0 {
+
+                print("interesting hash \(bytes[0].hex) \(bytes[1].hex) \(bytes[2].hex) \(bytes[3].hex)")
+                let position = bytes[2] & 0x0f
+                guard position < 8 else { return false }
+                guard result[Int(position)] == "_" else { return false }
+                let nextDigit = (bytes[3] & 0xf0) >> 4
+                let nextChar = String(format: "%x", nextDigit).characters.first!
+                print("nextChar: \(nextChar) position: \(position) index: \(index)")
+                result[Int(position)] = nextChar
+                return !result.contains("_")
+            } else {
+                return false
+            }
+        })
+        index += 1
+        if index % 10000 == 0 {
+            print(index, String(result))
+        }
+    }
+
+
+    return String(result)
+}
+
+print(generatePartTwo(input: "abbhdwsy"))
+
 
 //: [Next](@next)

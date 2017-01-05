@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<playground version='6.0' target-platform='macos' executeOnSourceChanges='false'>
+<playground version='6.0' target-platform='macos'>
     <pages>
         <page name='Day 1 - Taxi'/>
         <page name='Day 2 - Bathroom'/>
         <page name='Day 3 -  Squares With Three Sides'/>
         <page name='Day 4 - Security Through Obscurity'/>
         <page name='Day 5 - Nice Game of Chess'/>
+        <page name='Day 6 - Signals and Noise'/>
     </pages>
 </playground>
