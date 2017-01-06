@@ -77,7 +77,7 @@ extension UInt8 {
 func generatePartTwo(input: String) -> String {
     var result: [Character] = Array(repeating: "_", count: 8)
     var complete: Bool = false
-    var index = 0
+    var index = 1910965
 
     while !complete {
         let withIndex = input.appending(String(index))
