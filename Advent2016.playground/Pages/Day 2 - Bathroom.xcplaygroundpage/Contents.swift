@@ -54,7 +54,7 @@ struct Button {
         var result = ""
         var current = Button(number: 5)
 
-        for char in code.characters {
+        for char in code {
             if char == "\n" {
                 //                result.append("\(current.number)")
                 result.append(String(format: "%X", current.number))

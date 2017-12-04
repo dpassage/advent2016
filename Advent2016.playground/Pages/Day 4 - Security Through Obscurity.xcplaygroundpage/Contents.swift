@@ -50,7 +50,7 @@ struct Room {
 
         var count = [Character: Int]()
 
-        for char in name.characters {
+        for char in name {
             guard char != "-" else { continue }
 
             if let current = count[char] {

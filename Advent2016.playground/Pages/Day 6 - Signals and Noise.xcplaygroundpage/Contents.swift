@@ -6,14 +6,14 @@ var str = "Hello, playground"
 
 func decode(input: String) -> String {
     let lines = input.components(separatedBy: "\n")
-    let width = lines[0].characters.count
+    let width = lines[0].count
 
     var columns: [[Character: Int]] = Array(repeating: [:], count: width)
 
     for line in lines {
         guard !line.isEmpty else { continue }
 
-        for (n, char) in line.characters.enumerated() {
+        for (n, char) in line.enumerated() {
             if let cur = columns[n][char] {
                 columns[n][char] = cur + 1
             } else {

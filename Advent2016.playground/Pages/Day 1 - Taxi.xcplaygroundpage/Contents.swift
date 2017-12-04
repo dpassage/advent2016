@@ -75,7 +75,7 @@ struct TaxiState {
     }
 
     static func parse(string: String) -> (Turn, Int)? {
-        guard let first = string.characters.first else { return nil }
+        guard let first = string.first else { return nil }
         let turn: Turn
         switch first {
         case "L": turn = .left
@@ -83,9 +83,9 @@ struct TaxiState {
         default: return nil
         }
 
-        let index = string.characters.startIndex
-        let next = string.characters.index(after: index)
-        let rest = String(string.characters.suffix(from: next))
+        let index = string.startIndex
+        let next = string.index(after: index)
+        let rest = String(string.suffix(from: next))
 
         let distance = Int(rest) ?? 0
 
@@ -93,7 +93,7 @@ struct TaxiState {
     }
 
     func move(string: String) -> TaxiState {
-        guard let first = string.characters.first else { return TaxiState() }
+        guard let first = string.first else { return TaxiState() }
         let turn: Turn
         switch first {
         case "L": turn = .left
@@ -101,9 +101,9 @@ struct TaxiState {
         default: return TaxiState()
         }
 
-        let index = string.characters.startIndex
-        let next = string.characters.index(after: index)
-        let rest = String(string.characters.suffix(from: next))
+        let index = string.startIndex
+        let next = string.index(after: index)
+        let rest = String(string.suffix(from: next))
 
         let distance = Int(rest) ?? 0
 

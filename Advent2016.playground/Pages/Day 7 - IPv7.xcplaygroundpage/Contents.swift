@@ -22,12 +22,12 @@ func isAbba(_ input: [Character]) -> Bool {
 }
 
 func isAbbaString(_ string: String) -> Bool {
-    let chars = string.characters
+    let chars = string
     guard chars.count >= 4 else { return false }
-    for i in 0..<(chars.count - 4) {
+    for _ in 0..<(chars.count - 4) {
 
     }
-    return isAbba(Array(string.characters))
+    return isAbba(Array(string))
 }
 print(isAbbaString("abba"))
 print(isAbbaString("0000"))

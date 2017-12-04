@@ -17,7 +17,7 @@ public class Regex {
         let results = match.numberOfRanges
 
         for i in 1..<results {
-            result.append(inputString.substring(with: match.rangeAt(i)))
+            result.append(inputString.substring(with: match.range(at: i)))
         }
 
         return result

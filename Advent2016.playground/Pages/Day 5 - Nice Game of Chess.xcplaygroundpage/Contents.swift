@@ -39,7 +39,7 @@ func generate(input: String, length: Int = 8) -> String {
     var result = ""
     var index = 0
 
-    while result.characters.count < length {
+    while result.count < length {
         let withIndex = input.appending(String(index))
         let hashData = md5data(input: withIndex)
         hashData.withUnsafeBytes({ (bytes: UnsafePointer<UInt8>) -> Void in
@@ -62,7 +62,7 @@ func generate(input: String, length: Int = 8) -> String {
 //        }
         index += 1
         if index % 10000 == 0 {
-            print(index, result.characters.count)
+            print(index, result.count)
         }
     }
 
@@ -92,7 +92,7 @@ func generatePartTwo(input: String) -> String {
                 guard position < 8 else { return false }
                 guard result[Int(position)] == "_" else { return false }
                 let nextDigit = (bytes[3] & 0xf0) >> 4
-                let nextChar = String(format: "%x", nextDigit).characters.first!
+                let nextChar = String(format: "%x", nextDigit).first!
                 print("nextChar: \(nextChar) position: \(position) index: \(index)")
                 result[Int(position)] = nextChar
                 return !result.contains("_")
