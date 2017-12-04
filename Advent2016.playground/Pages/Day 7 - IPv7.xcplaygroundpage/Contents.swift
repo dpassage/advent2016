@@ -74,6 +74,86 @@ supportsTLS("oxxo[xvwuujrfkqjmtqdh]abba[quzbelbcfxknvqc]abba")
 
 let day7 = try! String(contentsOf: #fileLiteral(resourceName: "day7.input.txt"), encoding: .ascii)
 let day7lines = day7.components(separatedBy: "\n")
-print(day7lines.filter(supportsTLS).count)
+//print(day7lines.filter(supportsTLS).count)
+
+// part 2
+extension Substring {
+    var startsWithABA: Bool {
+        guard self.count >= 3 else { return false }
+        let first = self.startIndex
+        let third = self.index(first, offsetBy: 2)
+        return self[first] == self[third]
+    }
+}
+
+extension String {
+    var startsWithABA: Bool {
+        guard self.count >= 3 else { return false }
+        let first = self.startIndex
+        let second = self.index(after: first)
+        let third = self.index(after: second)
+        return self[first] == self[third] && self[first] != self[second]
+    }
+
+    func findAbas() -> [Substring] {
+        var result = [Substring]()
+
+        let indices = self.indices
+        for i in indices {
+            let substring = self[i...]
+            if substring.startsWithABA {
+                let plusTwo = index(i, offsetBy: 2)
+                result.append(substring[i...plusTwo])
+            }
+        }
+
+        return result
+    }
+
+    func bAb() -> String {
+        guard count >= 2 else { return "" }
+        let first = self[startIndex]
+        let second = self[self.index(after: startIndex)]
+        return String([second, first, second])
+    }
+}
+
+"aba".startsWithABA
+"xxx".startsWithABA
+
+"zazbz".findAbas()
+
+"aba".bAb()
+
+func supportsSSL(_ input: String) -> Bool {
+    var supernets: [String] = []
+    var hypernets: [String] = []
+
+    let words = input.components(separatedBy: brackets)
+    for (i, word) in words.enumerated() {
+        if i.isOdd {
+            hypernets.append(word)
+        } else {
+            supernets.append(word)
+        }
+    }
+
+    let ABAs = supernets.flatMap { $0.findAbas() }.map(String.init)
+    let BABs = ABAs.map { $0.bAb() }
+
+    for bab in BABs {
+        for hypernet in hypernets {
+            if hypernet.contains(bab) { return true }
+        }
+    }
+    return false
+}
+
+supportsSSL("aba[bab]xyz")
+supportsSSL("xyx[xyx]xyx")
+supportsSSL("aaa[kek]eke")
+supportsSSL("zazbz[bzb]cdb")
+
+print(day7lines.filter(supportsSSL).count)
 
 //: [Next](@next)
