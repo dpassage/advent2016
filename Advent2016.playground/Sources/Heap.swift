@@ -73,7 +73,13 @@ public struct Heap<Element> {
     }
 
     private func highestPriorityChildIndex(for parent: Int) -> Int {
-        return highestPriorityIndex(of: highestPriorityIndex(of: parent, and: leftChildIndex(of: parent)), and: rightChildIndex(of: parent))
+        return highestPriorityIndex(
+            of: highestPriorityIndex(
+                of: parent,
+                and: leftChildIndex(of: parent)
+            ),
+            and: rightChildIndex(of: parent)
+        )
     }
 
     private mutating func swapElement(at firstIndex: Int, with secondIndex: Int) {
@@ -100,4 +106,3 @@ public struct Heap<Element> {
         siftDown(elementAtIndex: childIndex)
     }
 }
-

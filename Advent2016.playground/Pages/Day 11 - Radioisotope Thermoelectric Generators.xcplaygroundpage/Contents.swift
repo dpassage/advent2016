@@ -57,7 +57,6 @@ extension Component: Hashable {
     }
 }
 
-
 struct BuildingState {
     var elevatorFloor: Int = 0
 
@@ -95,6 +94,7 @@ extension Set where Element == Component {
         return result
     }
 
+    // swiftlint:disable large_tuple
     func counts() -> (Int, Int, Int) {
         var pairCount = 0
         var chipcount = 0
@@ -111,6 +111,7 @@ extension Set where Element == Component {
         let genCount = count - ((2 * pairCount) + chipcount)
         return (pairCount, chipcount, genCount)
     }
+    // swiftlint:enable large_tuple
 
     func countsHash() -> Int {
         let (one, two, three) = counts()
@@ -123,7 +124,7 @@ extension BuildingState: Hashable {
         return floors.map { $0.countsHash() }.reduce(elevatorFloor, ^)
     }
 
-    static func ==(lhs: BuildingState, rhs: BuildingState) -> Bool {
+    static func == (lhs: BuildingState, rhs: BuildingState) -> Bool {
         if lhs.elevatorFloor != rhs.elevatorFloor { return false }
         for (leftFloor, rightFloor) in zip(lhs.floors, rhs.floors) {
             if leftFloor.counts() != rightFloor.counts() { return false }
@@ -225,7 +226,8 @@ print(solve(startState: testState))
 /*
  The first floor contains a promethium generator and a promethium-compatible microchip.
  The second floor contains a cobalt generator, a curium generator, a ruthenium generator, and a plutonium generator.
- The third floor contains a cobalt-compatible microchip, a curium-compatible microchip, a ruthenium-compatible microchip, and a plutonium-compatible microchip.
+ The third floor contains a cobalt-compatible microchip, a curium-compatible microchip, a ruthenium-compatible
+     microchip, and a plutonium-compatible microchip.
  The fourth floor contains nothing relevant.
  */
 
@@ -236,13 +238,13 @@ let startState = BuildingState(elevatorFloor: 0, floors: [
      Component(type: .chip, elem: .elerium),
      Component(type: .generator, elem: .dilithium),
      Component(type: .chip, elem: .dilithium)],
-    [Component(type: .generator, elem: .cobalt), Component(type: .generator, elem: .curium), Component(type: .generator, elem: .ruthenium),Component(type: .generator, elem: .plutonium)],
-    [Component(type: .chip, elem: .cobalt), Component(type: .chip, elem: .curium), Component(type: .chip, elem: .ruthenium), Component(type: .chip, elem: .plutonium)],
+    [Component(type: .generator, elem: .cobalt), Component(type: .generator, elem: .curium),
+     Component(type: .generator, elem: .ruthenium),Component(type: .generator, elem: .plutonium)],
+    [Component(type: .chip, elem: .cobalt), Component(type: .chip, elem: .curium),
+     Component(type: .chip, elem: .ruthenium), Component(type: .chip, elem: .plutonium)],
     []
     ])
 
 print(solve(startState: startState))
 
 //: [Next](@next)
-
-

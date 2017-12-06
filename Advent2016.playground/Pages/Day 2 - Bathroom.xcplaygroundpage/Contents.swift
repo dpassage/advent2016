@@ -1,11 +1,6 @@
 //: [Previous](@previous)
 
-//: Playground - noun: a place where people can play
-
 import Cocoa
-
-var str = "Hello, playground"
-
 
 struct Button {
     var number: Int = 5

@@ -3,14 +3,14 @@
 import Foundation
 import SecurityFoundation
 
-func md5(input: String) -> String {
-    let inputData = input.data(using: .ascii)! as NSData
+func md5(input: String) -> String? {
+    guard let inputData = input.data(using: .ascii) as NSData? else { return nil }
 
     let digester = SecDigestTransformCreate(kSecDigestMD5, 0, nil)
 
     SecTransformSetAttribute(digester, kSecTransformInputAttributeName, inputData, nil)
 
-    let encodedData = SecTransformExecute(digester, nil) as! NSData
+    guard let encodedData = SecTransformExecute(digester, nil) as? NSData else { return nil }
 
     let bytes = encodedData.bytes.assumingMemoryBound(to: UInt8.self)
     var digestHex = ""
@@ -33,7 +33,7 @@ func md5data(input: String) -> Data {
     return encodedData as Data
 }
 
-print(md5(input: ""))
+print(md5(input: "") ?? "nil")
 
 func generate(input: String, length: Int = 8) -> String {
     var result = ""

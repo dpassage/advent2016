@@ -51,7 +51,7 @@ struct Loc {
 
     func neighbors() -> [Loc] {
         var ret = [Loc]()
-        let deltas = [(-1,0), (1,0), (0,1), (0,-1)]
+        let deltas = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
         for delta in deltas {
             let newX = x + delta.0

@@ -20,9 +20,9 @@ struct Screen {
         }
     }
 
-    mutating func rect(a: Int, b: Int) {
-        for row in 0..<b {
-            for column in 0..<a {
+    mutating func rect(width: Int, height: Int) {
+        for row in 0..<height {
+            for column in 0..<width {
                 self[row, column] = true
             }
         }
@@ -74,7 +74,7 @@ extension Screen {
         if let rectMatch = rectCommand.match(input: input) {
             let x = Int(rectMatch[0])!
             let y = Int(rectMatch[1])!
-            self.rect(a: x, b: y)
+            self.rect(width: x, height: y)
         } else if let columnMatch = rotateColumnCommand.match(input: input) {
             let column = Int(columnMatch[0])!
             let by = Int(columnMatch[1])!

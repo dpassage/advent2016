@@ -40,9 +40,11 @@ enum Turn {
 }
 
 struct TaxiState {
+    // swiftlint:disable identifier_name
     var x: Int = 0
     var y: Int = 0
     var pointing: Direction = .north
+    // swiftlint:enable identifier_name
 
     var distance: Int { return abs(x) + abs(y) }
 

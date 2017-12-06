@@ -5,18 +5,18 @@ import Foundation
 let roomPattern = "([a-z\\-]*)-([0-9]*)\\[([a-z]*)\\]"
 let roomRegex = try! Regex(pattern: roomPattern)
 
-
 extension UnicodeScalar {
     func rotated(_ n: UInt32) -> UnicodeScalar {
-        let a: UnicodeScalar = "a"
+        let aScalar: UnicodeScalar = "a"
 
-        let index = (self.value - a.value)
+        let index = (self.value - aScalar.value)
         let rotatedIndex = (index + n) % 26
 
-        let result = UnicodeScalar(rotatedIndex + a.value)!
+        let result = UnicodeScalar(rotatedIndex + aScalar.value)!
         return result
     }
 }
+
 struct Room {
     var name: String
     var sector: Int
