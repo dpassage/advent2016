@@ -1,37 +1,6 @@
 //: [Previous](@previous)
 
 import Foundation
-import SecurityFoundation
-
-func md5(input: String) -> String? {
-    guard let inputData = input.data(using: .ascii) as NSData? else { return nil }
-
-    let digester = SecDigestTransformCreate(kSecDigestMD5, 0, nil)
-
-    SecTransformSetAttribute(digester, kSecTransformInputAttributeName, inputData, nil)
-
-    guard let encodedData = SecTransformExecute(digester, nil) as? NSData else { return nil }
-
-    let bytes = encodedData.bytes.assumingMemoryBound(to: UInt8.self)
-    var digestHex = ""
-    for i in 0..<encodedData.length {
-        digestHex += String(format: "%02x", bytes[i])
-    }
-
-    return digestHex
-}
-
-func md5data(input: String) -> Data {
-    let inputData = input.data(using: .ascii)! as NSData
-
-    let digester = SecDigestTransformCreate(kSecDigestMD5, 0, nil)
-
-    SecTransformSetAttribute(digester, kSecTransformInputAttributeName, inputData, nil)
-
-    let encodedData = SecTransformExecute(digester, nil) as! NSData
-
-    return encodedData as Data
-}
 
 print(md5(input: "") ?? "nil")
 
@@ -74,6 +43,7 @@ extension UInt8 {
         return String(format: "%x", self)
     }
 }
+
 func generatePartTwo(input: String) -> String {
     var result: [Character] = Array(repeating: "_", count: 8)
     var complete: Bool = false

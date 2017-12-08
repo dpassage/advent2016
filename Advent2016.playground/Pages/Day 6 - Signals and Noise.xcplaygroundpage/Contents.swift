@@ -2,8 +2,6 @@
 
 import Foundation
 
-var str = "Hello, playground"
-
 func decode(input: String) -> String {
     let lines = input.components(separatedBy: "\n")
     let width = lines[0].count
