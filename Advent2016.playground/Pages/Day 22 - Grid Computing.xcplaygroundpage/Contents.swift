@@ -1,33 +1,14 @@
 //: [Previous](@previous)
 
 import Foundation
+import AdventLib
 
 let nodeRegex = try! Regex(pattern: "\\/dev\\/grid\\/node-x(\\d+)-y(\\d+)\\s+(\\d+)T\\s+(\\d+)T\\s+(\\d+)T\\s+\\d+%")
 
 print(nodeRegex.match(input: "/dev/grid/node-x0-y0     85T   68T    17T   80%") ?? "no match")
 
-
-struct Loc {
-    var x: Int
-    var y: Int
-}
-
-extension Loc: Hashable {
-    var hashValue: Int {
-        return x.hashValue ^ y.hashValue
-    }
-
-    static func ==(lhs: Loc, rhs: Loc) -> Bool {
-        return lhs.x == rhs.x && lhs.y == rhs.y
-    }
-
-    func distance(from: Loc) -> Int {
-        return abs(x - from.x) + abs(y - from.y)
-    }
-}
-
 struct Node {
-    var loc: Loc
+    var loc: Point
     var size: Int
     var used: Int
     var avail: Int { return size - used }
@@ -40,16 +21,16 @@ struct Node {
             let size = Int(match[2]),
             let used = Int(match[3]) else { return nil }
 
-        self.loc = Loc(x: x, y: y)
+        self.loc = Point(x: x, y: y)
         self.size = size
         self.used = used
     }
 }
 
 struct Board {
-    var nodes: [Loc: Node] = [:]
-    var emptyNode = Loc(x: -1, y: -1)
-    var targetNode = Loc(x: -1, y: -1)
+    var nodes: [Point: Node] = [:]
+    var emptyNode = Point(x: -1, y: -1)
+    var targetNode = Point(x: -1, y: -1)
     var moves = 0
 
     init() {
@@ -71,16 +52,16 @@ struct Board {
     }
 
     func nodeAt(x: Int, y: Int) -> Node? {
-        let loc = Loc(x: x, y: y)
+        let loc = Point(x: x, y: y)
         return nodes[loc]
     }
 
-    func neighbors(of loc: Loc) -> [Loc] {
+    func neighbors(of loc: Point) -> [Point] {
         let deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
-        let locations = deltas.compactMap { (arg0) -> Loc in
+        let locations = deltas.compactMap { (arg0) -> Point in
             let (x, y) = arg0
-            return Loc(x: loc.x + x, y: loc.y + y)
+            return Point(x: loc.x + x, y: loc.y + y)
         }
 
         let neighbors = locations.filter { nodes.keys.contains($0) }
@@ -88,7 +69,7 @@ struct Board {
         return neighbors
     }
 
-    mutating func move(nodeAt from: Loc, to: Loc) -> Bool {
+    mutating func move(nodeAt from: Point, to: Point) -> Bool {
         guard let source = nodes[from] else { return false }
         guard let target = nodes[to] else { return false }
         if source.used <= target.avail {
@@ -102,7 +83,7 @@ struct Board {
         return false
     }
 
-    func moving(nodeAt from: Loc, to: Loc) -> Board? {
+    func moving(nodeAt from: Point, to: Point) -> Board? {
         var new = self
         if new.move(nodeAt: from, to: to) {
             return new
@@ -112,7 +93,7 @@ struct Board {
     }
 
     var score: Int {
-        return (5 * emptyNode.distance(from: targetNode)) + targetNode.distance(from: Loc(x: 0, y: 0)) + moves
+        return (5 * emptyNode.distance(from: targetNode)) + targetNode.distance(from: Point(x: 0, y: 0)) + moves
     }
 }
 
@@ -157,22 +138,5 @@ func printBoard(nodes: [Node]) {
 
 let input = try! String(contentsOf: #fileLiteral(resourceName: "day22.input.txt"))
 printBoard(nodes: parseNodes(input: input))
-
-func findPath(nodes: [Node]) -> Int {
-    var heap = Heap<Board> { (lhs, rhs) -> Bool in
-        lhs.score < rhs.score
-    }
-
-    var firstBoard = Board()
-    firstBoard.add(nodes: nodes)
-    heap.enqueue(firstBoard)
-
-    while let currentBoard = heap.dequeue() {
-
-    }
-
-
-    return -1
-}
 
 //: [Next](@next)
