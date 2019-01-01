@@ -78,7 +78,7 @@ struct Board {
     func neighbors(of loc: Loc) -> [Loc] {
         let deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
-        let locations = deltas.flatMap { (arg0) -> Loc in
+        let locations = deltas.compactMap { (arg0) -> Loc in
             let (x, y) = arg0
             return Loc(x: loc.x + x, y: loc.y + y)
         }
