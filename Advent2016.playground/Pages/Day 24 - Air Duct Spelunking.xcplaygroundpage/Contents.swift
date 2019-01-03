@@ -1,6 +1,7 @@
 //: [Previous](@previous)
 
 import Foundation
+import AdventLib
 
 let testInput = """
 ###########
@@ -10,204 +11,173 @@ let testInput = """
 ###########
 """
 
-struct Loc: Hashable {
-    var x: Int
-    var y: Int
-
-    var hashValue: Int {
-        return x.hashValue ^ y.hashValue
-    }
-
-    static func ==(lhs: Loc, rhs: Loc) -> Bool {
-        return lhs.x == rhs.x && lhs.y == rhs.y
-    }
-
-    func neighbors() -> [Loc] {
-        let deltas = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-        var result = [Loc]()
-        for delta in deltas {
-            let newX = self.x + delta.0
-            let newY = self.y + delta.1
-            if newX >= 0 && newY >= 0 { result.append(Loc(x: newX, y: newY)) }
-        }
-        return result
-    }
-
-    func distance(from: Loc) -> Int {
-        return abs(self.x - from.x) + abs(self.y - from.y)
-    }
+enum Space: Char {
+    case open = "."
+    case wall = "#"
 }
 
-enum Space {
-    case open
-    case wall
-
-    init(c: Character) {
-        switch c {
-        case "#":
-            self = .wall
-        default:
-            self = .open
-        }
-    }
-}
-
-extension Space {
-    var printed: String {
-        switch self {
-        case .open: return "."
-        case .wall: return "#"
-        }
-    }
-}
-
-extension Character {
-    var isDigit: Bool {
-        return ("0"..."9").contains(self)
-    }
-}
-
-struct Board {
-    var map: [[Space]] = []
-
-    func spaceAt(loc: Loc) -> Space? {
-        guard map.indices.contains(loc.y) else { return nil }
-        let line = map[loc.y]
-        guard line.indices.contains(loc.x) else { return nil }
-        return line[loc.x]
-    }
-
-    var spots: [Int: Loc] = [:]
-
-    class Memo {
-        var shortestPaths: [String: Int] = [:]
-        init() {}
-    }
-
-    private let memo = Memo()
-
+struct Board: CustomStringConvertible {
+    var grid: Rect<Space>
+    var spots: [Char: Point] = [:]
     init(input: String) {
-        let lines = input.split(separator: "\n")
+        let lines = input.components(separatedBy: "\n")
+        let width = lines.map { $0.count }.max()!
+        let height = lines.count
+        grid = Rect(width: width, height: height, defaultValue: .open)
         for (y, line) in lines.enumerated() {
-            let mapLine = line.map(Space.init)
-            map.append(mapLine)
-            for (x, c) in line.enumerated() {
-                if c.isDigit, let num = Int(String(c)) {
-                    spots[num] = Loc(x: x, y: y)
+            for (x, char) in line.chars.enumerated() {
+                if let space = Space(rawValue: char) {
+                    grid[x, y] = space
+                } else if char.isDigit {
+                    grid[x, y] = .open
+                    spots[char] = Point(x: x, y: y)
                 }
             }
         }
     }
 
-    private struct PathRecord {
-        var currentLoc: Loc
-        var steps: Int
-
-        func score(destination: Loc) -> Int {
-            return currentLoc.distance(from: destination) + steps
-        }
-    }
-
-    func shortestPath(from: Int, to: Int) -> Int {
-        if let memoized = memo.shortestPaths["\(from),\(to)"] { return memoized }
-        if let memoized = memo.shortestPaths["\(to),\(from)"] { return memoized }
-        guard let fromLoc = spots[from], let toLoc = spots[to] else { return -1 }
-        var visited: Set<Loc> = []
-        var heap = Heap<PathRecord> { (left, right) -> Bool in
-            left.score(destination: toLoc) < right.score(destination: toLoc)
-        }
-        heap.enqueue(Board.PathRecord(currentLoc: fromLoc, steps: 0))
-
-        while let current = heap.dequeue() {
-            if current.currentLoc == toLoc {
-                memo.shortestPaths["\(from),\(to)"] = current.steps
-                return current.steps
-            }
-            for neighbor in current.currentLoc.neighbors() {
-                if visited.contains(neighbor) { continue } else { visited.insert(neighbor) }
-                if let space = spaceAt(loc: neighbor), space == .open {
-                    heap.enqueue(Board.PathRecord(currentLoc: neighbor, steps: current.steps + 1))
+    var description: String {
+        var result = ""
+        let spots = [Point: Char](uniqueKeysWithValues: self.spots.map { ($1, $0) })
+        for y in 0..<grid.height {
+            for x in 0..<grid.width {
+                if let spot = spots[Point(x: x, y: y)] {
+                    result.append(char: spot)
+                } else {
+                    result.append(char: grid[x, y].rawValue)
                 }
             }
-        }
-
-
-        return -1
-    }
-
-    private struct TourRecord {
-        var path: [Int]
-        var score: Int
-    }
-
-    func pathCost(_ path: [Int]) -> Int {
-        guard path.count > 1 else { return 0 }
-        var result = 0
-        for i in 0..<(path.count - 1) {
-            result += shortestPath(from: path[i], to: path[i + 1])
+            result.append("\n")
         }
         return result
     }
-
-    func shortestTourNearestNeighbor() -> Int {
-        let nodes = spots.keys
-        var path = [0]
-        var currentCost = 0
-        var currentNode = 0
-
-        while path.count != nodes.count {
-            let unusedNodes = nodes.filter { !path.contains($0) }
-            print(unusedNodes)
-            let nodeCosts = unusedNodes.map({ (node) -> (Int, Int) in
-                let cost = shortestPath(from: currentNode, to: node)
-                print(currentNode, node, cost)
-                return (node, cost)
-            })
-            let sorted = nodeCosts.sorted(by: { (lhs, rhs) -> Bool in
-                return lhs.1 < rhs.1
-            })
-            let best = sorted.first!
-            path.append(best.0)
-            currentCost += best.1
-            currentNode = best.0
-            print(path, currentCost)
-        }
-
-        return currentCost
-    }
 }
 
-extension Board {
-    var printed: String {
-        let spots = self.spots.map { (key, value) -> (Loc, Int) in
-            return (value, key)
-        }
-
-        let result = map.enumerated().map { (y, line) -> String in
-            let s = line.enumerated().map({ (x, space) -> String in
-                if let spot = spots.first(where: { (loc, num) -> Bool in
-                    loc == Loc(x: x, y: y)
-                }) {
-                    return "\(spot.1)"
-                } else { return space.printed }
-            }).joined()
-            return s
-        }.joined(separator: "\n")
-
-        return result
-    }
-}
 
 let testBoard = Board(input: testInput)
-print(testBoard.printed)
-print(testBoard.shortestPath(from: 3, to: 1))
-print(testBoard.shortestPath(from: 3, to: 1))
-print(testBoard.shortestTourNearestNeighbor())
+print(testBoard)
+
+extension Board: Dijkstra {
+    typealias Node = Point
+
+    func neighborsOf(_ node: Point) -> [(node: Point, distance: Int)] {
+        return node.adjacents()
+            .filter { grid.isValidIndex($0) }
+            .filter { grid[$0] == .open }
+            .map { ($0, 1) }
+    }
+
+    func shortestPathLengths(from spot: Char) -> [Char: Int] {
+        let startPoint = spots[spot]!
+        let pointDistances = distances(from: startPoint)
+        var result: [Char: Int] = [:]
+        for (char, point) in spots {
+            guard char != spot else { continue }
+            if let distance = pointDistances[point] {
+                result[char] = distance
+            }
+        }
+        return result
+    }
+
+    struct Path: Hashable {
+        var from: Char
+        var to: Char
+    }
+    func pathLookupTable() -> [Path: Int] {
+        var result = [Path: Int]()
+        for start in spots.keys {
+            let pathLengths = shortestPathLengths(from: start)
+            for (to, distance) in pathLengths {
+                result[Path(from: start, to: to)] = distance
+            }
+        }
+        return result
+    }
+}
+
+struct PathFinder {
+    var distances: [Board.Path: Int]
+    var spots: Set<Char>
+    var shortestDistance: Int
+    init(distances: [Board.Path: Int]) {
+        self.distances = distances
+        self.spots = Set(distances.keys.map { $0.from })
+        self.shortestDistance = distances.values.min()!
+    }
+
+    struct Walk: Hashable {
+        var nodes: [Char]
+        var totalLength: Int
+
+        func adding(node: Char, dist: Int) -> Walk {
+            var result = self
+            result.nodes.append(node)
+            result.totalLength += dist
+            return result
+        }
+    }
+
+    func estimatedCost(from start: Walk) -> Int {
+        let remaining = spots.subtracting(start.nodes).count
+        return remaining * shortestDistance
+    }
+
+    func nextSteps(from current: Walk) -> [(walk: Walk, distance: Int)] {
+        let currentSpot = current.nodes.last!
+        let remainingSpots = spots.subtracting(current.nodes)
+        return remainingSpots.map { (spot) -> (walk: Walk, distance: Int) in
+            let distance = distances[Board.Path(from: currentSpot, to: spot)] ?? Int.max
+            let newWalk = current.adding(node: spot, dist: distance)
+            return (newWalk, distance)
+        }
+    }
+
+    func aStar() -> Walk? {
+        var closedSet: Set<Walk> = []
+        let start = Walk(nodes: ["0"], totalLength: 0)
+        var gScore: [Walk: Int] = [start: 0]
+
+        var heap = AdventLib.Heap<(walk: Walk, fScore: Int)>(priorityFunction: { $0.fScore < $1.fScore })
+        heap.enqueue((walk: start, fScore: estimatedCost(from: start)))
+
+        while let current = heap.dequeue()?.walk {
+            if current.nodes.count == spots.count {
+                return current
+            }
+            closedSet.insert(current)
+
+            for (neighbor, distance) in nextSteps(from: current) {
+                if closedSet.contains(neighbor) { continue }
+                let tentativeScore = gScore[current, default: Int.max] + distance
+                if tentativeScore > gScore[neighbor, default: Int.max] {
+                    continue
+                }
+                gScore[neighbor] = tentativeScore
+                heap.enqueue((walk: neighbor, fScore: tentativeScore + estimatedCost(from: neighbor)))
+            }
+        }
+        return nil
+    }
+
+}
+
+print(testBoard.shortestPathLengths(from: "0"))
+let testTable = testBoard.pathLookupTable()
+print(testTable)
+let testFinder = PathFinder(distances: testTable)
+print(testFinder)
+print(testFinder.aStar())
 
 let url = Bundle.main.url(forResource: "day24.input", withExtension: "txt")!
 let input = try! String(contentsOf: url)
 let board = Board(input: input)
-//print(board.shortestPath(from: 0, to: 1))
-//print(board.shortestTourNearestNeighbor())
+print(board)
+print(board.spots)
+print(board.shortestPathLengths(from: "0"))
+let boardTable = board.pathLookupTable()
+let boardFinder = PathFinder(distances: boardTable)
+print(boardFinder.aStar())
+
 
 //: [Next](@next)
