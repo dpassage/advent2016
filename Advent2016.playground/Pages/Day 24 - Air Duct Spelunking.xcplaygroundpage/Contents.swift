@@ -119,17 +119,24 @@ struct PathFinder {
     }
 
     func estimatedCost(from start: Walk) -> Int {
-        let remaining = spots.subtracting(start.nodes).count
-        return remaining * shortestDistance
+        let targetNodes = spots.count + 1
+        let walkedNodes = start.nodes.count
+        return (targetNodes - walkedNodes) * shortestDistance
     }
 
     func nextSteps(from current: Walk) -> [(walk: Walk, distance: Int)] {
         let currentSpot = current.nodes.last!
-        let remainingSpots = spots.subtracting(current.nodes)
-        return remainingSpots.map { (spot) -> (walk: Walk, distance: Int) in
-            let distance = distances[Board.Path(from: currentSpot, to: spot)] ?? Int.max
-            let newWalk = current.adding(node: spot, dist: distance)
-            return (newWalk, distance)
+        if current.nodes.count == spots.count {
+            let backHome = distances[Board.Path(from: currentSpot, to: "0")]!
+            let lastWalk = current.adding(node: "0", dist: backHome)
+            return [(lastWalk, backHome)]
+        } else {
+            let remainingSpots = spots.subtracting(current.nodes)
+            return remainingSpots.map { (spot) -> (walk: Walk, distance: Int) in
+                let distance = distances[Board.Path(from: currentSpot, to: spot)] ?? Int.max
+                let newWalk = current.adding(node: spot, dist: distance)
+                return (newWalk, distance)
+            }
         }
     }
 
@@ -142,7 +149,8 @@ struct PathFinder {
         heap.enqueue((walk: start, fScore: estimatedCost(from: start)))
 
         while let current = heap.dequeue()?.walk {
-            if current.nodes.count == spots.count {
+//            print(current)
+            if current.nodes.count == spots.count + 1 {
                 return current
             }
             closedSet.insert(current)
@@ -162,12 +170,12 @@ struct PathFinder {
 
 }
 
-print(testBoard.shortestPathLengths(from: "0"))
-let testTable = testBoard.pathLookupTable()
-print(testTable)
-let testFinder = PathFinder(distances: testTable)
-print(testFinder)
-print(testFinder.aStar())
+//print(testBoard.shortestPathLengths(from: "0"))
+//let testTable = testBoard.pathLookupTable()
+//print(testTable)
+//let testFinder = PathFinder(distances: testTable)
+//print(testFinder)
+//print(testFinder.aStar())
 
 let url = Bundle.main.url(forResource: "day24.input", withExtension: "txt")!
 let input = try! String(contentsOf: url)
