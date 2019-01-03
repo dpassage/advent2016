@@ -139,4 +139,16 @@ func printBoard(nodes: [Node]) {
 let input = try! String(contentsOf: #fileLiteral(resourceName: "day22.input.txt"))
 printBoard(nodes: parseNodes(input: input))
 
+struct Solver: AStar {
+    typealias Node = Board
+
+    func estimatedCost(from start: Solver.Node, to goal: Solver.Node) -> Int {
+        return start.score
+    }
+
+    func neighborsOf(_ node: Solver.Node) -> [(node: Solver.Node, distance: Int)] {
+        return []
+    }
+}
+
 //: [Next](@next)
